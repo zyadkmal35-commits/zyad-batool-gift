@@ -7,6 +7,9 @@ const bgMusic = document.getElementById('bg-music');
 const cells = document.querySelectorAll('.cell');
 const gameStatus = document.getElementById('game-status');
 const resetBtn = document.getElementById('reset-game');
+const roleSelection = document.getElementById('role-selection');
+const btnZyad = document.getElementById('btn-zyad');
+const btnBatool = document.getElementById('btn-batool');
 
 // --- Firebase Configuration ---
 const firebaseConfig = {
@@ -104,6 +107,20 @@ let gameState = Array(9).fill(null);
 let currentPlayer = 'nick';
 let scores = { nick: 0, judy: 0 };
 
+let myRole = localStorage.getItem('playerRole');
+if (myRole) {
+    roleSelection.style.display = 'none';
+}
+
+btnZyad.addEventListener('click', () => selectRole('nick'));
+btnBatool.addEventListener('click', () => selectRole('judy'));
+
+function selectRole(role) {
+    myRole = role;
+    localStorage.setItem('playerRole', role);
+    roleSelection.style.display = 'none';
+}
+
 function initGame() {
     if (gameRef) {
         gameRef.on('value', (snapshot) => {
@@ -137,6 +154,15 @@ function handleCellClick(e) {
     const index = e.target.getAttribute('data-index');
     
     if (gameState[index]) return;
+
+    if (!myRole) {
+        alert("لازم تختار إنت مين الأول من القائمة عشان تلعب!");
+        return;
+    }
+    if (currentPlayer !== myRole) {
+        alert("مش دورك يا مكار! ده دور " + (currentPlayer === 'nick' ? 'زياد 🦊' : 'بتول 🐰'));
+        return;
+    }
     
     gameState[index] = currentPlayer;
     const nextPlayer = currentPlayer === 'nick' ? 'judy' : 'nick';

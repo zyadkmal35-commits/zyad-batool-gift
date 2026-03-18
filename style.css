@@ -276,3 +276,36 @@ h1 {
         opacity: 0;
     }
 }
+
+/* Role Selection Modal */
+.role-modal {
+    background: rgba(0, 0, 0, 0.5);
+    padding: 20px;
+    border-radius: 15px;
+    margin: 10px auto 20px;
+    text-align: center;
+    border: 1px solid var(--glass-bg);
+}
+
+.role-modal h4 {
+    color: #eee;
+    margin-bottom: 15px;
+    font-size: 1.1rem;
+}
+
+.role-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+}
+
+.role-buttons .btn {
+    font-size: 0.9rem;
+    padding: 10px 20px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.role-buttons .btn:hover {
+    background: var(--police-blue);
+}
