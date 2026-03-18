@@ -3,94 +3,100 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ملف القضية رقم 1 | زوتوبيا</title>
+    <title>تحدي الأصدقاء - الثعلب ضد الأرنب</title>
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
     <!-- Firebase SDKs -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
 </head>
 <body>
+    <div id="particles-bg"></div>
+
     <div id="app">
-        <!-- Landing Screen -->
-        <div id="landing" class="screen active">
-            <div class="case-badge">
-                <img src="https://upload.wikimedia.org/wikipedia/en/9/96/Zootopia_logo.png" alt="Zootopia Logo" class="logo">
-                <h1>ملف القضية #001</h1>
-                <p class="subtitle">تصريح دخول للمصرح لهم فقط</p>
-            </div>
+        <!-- Lobby Screen -->
+        <div id="lobby-screen" class="screen active glass-card">
+            <div class="logo-emoji">🦊 ⚔️ 🐰</div>
+            <h1>تحدي الثعلب والأرنب</h1>
+            <p class="subtitle">العب مع أصحابك أونلاين</p>
             
-            <div class="scanner-container">
-                <div id="scanner" class="fingerprint">
-                    <svg viewBox="0 0 512 512" width="100" height="100">
-                        <path fill="currentColor" d="M256,0C114.6,0,0,114.6,0,256s114.6,256,256,256s256-114.6,256-256S397.4,0,256,0z M256,464 c-114.7,0-208-93.3-208-208S141.3,48,256,48s208,93.3,208,208S370.7,464,256,464z M256,80c-97.1,0-176,78.9-176,176s78.9,176,176,176 s176-78.9,176-176S353.1,80,256,80z M256,400c-79.4,0-144-64.6-144-144s64.6-144,144-144s144,64.6,144,144S335.4,400,256,400z M256,144 c-61.8,0-112,50.2-112,112s50.2,112,112,112s112-50.2,112-112S317.8,144,256,144z M256,336c-44.1,0-80-35.9-80-80s35.9-80,80-80 s80,35.9,80,80S300.1,336,256,336z"/>
-                    </svg>
-                    <div class="scan-bar"></div>
+            <div class="lobby-actions">
+                <button id="btn-create-room" class="btn primary-btn">
+                    <span>إنشاء غرفة جديدة 🦊</span>
+                </button>
+
+                <div class="divider">
+                    <span>أو</span>
                 </div>
-                <p id="instruction">اضغط مطولاً للتحقق من الهوية</p>
-                <div id="progress-container">
-                    <div id="progress-bar"></div>
+
+                <div class="join-box">
+                    <input type="text" id="join-room-code" placeholder="أدخل كود الغرفة (مثال: 1234)" maxlength="5">
+                    <button id="btn-join-room" class="btn secondary-btn">
+                        <span>دخول للغرفة 🐰</span>
+                    </button>
+                    <p id="lobby-error" class="error-text"></p>
                 </div>
             </div>
         </div>
 
-        <!-- Content Screen -->
-        <div id="reveal" class="screen">
-            <div class="content">
-                <div class="title-section">
-                    <h2>تم التحقق: زياد ❤️ بتول</h2>
-                </div>
+        <!-- Waiting Screen -->
+        <div id="waiting-screen" class="screen glass-card hidden">
+            <h2>الغرفة الخاصة بيك</h2>
+            <div id="room-code-display" class="big-code">----</div>
+            <p class="instruction">شارك الكود ده مع صاحبك عشان ينضم ليك..</p>
+            <div class="loader"></div>
+            <p class="waiting-text">بانتظار دخول اللاعب التاني (الأرنب)..</p>
+        </div>
+
+        <!-- Game Screen -->
+        <div id="game-screen" class="screen glass-card hidden">
+            <div class="game-header">
+                <h3>الغرفة: <span id="current-room-display"></span></h3>
                 
-                <div class="hero-image">
-                    <img src="https://i.pinimg.com/originals/94/a5/58/94a5587343bc49a09c0f66b2808c32493.jpg" alt="Nick and Judy" id="main-img">
-                </div>
-
-                <div class="message-card">
-                    <p id="typewriter"></p>
-                </div>
-
-                <!-- Tic-Tac-Carrot Game Section -->
-                <div id="game-section" class="game-container">
-                    <div class="game-header">
-                        <h3>لعبة Tic-Tac-Carrot 🦊🥕🐰</h3>
-                        <div class="scores">
-                            <div class="player-score">زياد: <span id="score-fox">0</span></div>
-                            <div class="player-score">بتول: <span id="score-rabbit">0</span></div>
-                        </div>
-                        <p id="game-status">بانتظار التحقق...</p>
-                    </div>
-                    
-                    <div id="role-selection" class="role-modal">
-                        <h4>مين اللي بيلعب من الموبايل ده؟</h4>
-                        <div class="role-buttons">
-                            <button id="btn-zyad" class="btn">أنا زياد 🦊</button>
-                            <button id="btn-batool" class="btn">أنا بتول 🐰</button>
+                <div class="scores">
+                    <div class="player-score fox-score">
+                        <span class="avatar">🦊</span>
+                        <div class="score-details">
+                            <span class="name">الثعلب</span>
+                            <span class="points" id="score-fox">0</span>
                         </div>
                     </div>
-                    
-                    <div class="board" id="board">
-                        <div class="cell" data-index="0"></div>
-                        <div class="cell" data-index="1"></div>
-                        <div class="cell" data-index="2"></div>
-                        <div class="cell" data-index="3"></div>
-                        <div class="cell" data-index="4"></div>
-                        <div class="cell" data-index="5"></div>
-                        <div class="cell" data-index="6"></div>
-                        <div class="cell" data-index="7"></div>
-                        <div class="cell" data-index="8"></div>
+                    <div class="player-score rabbit-score">
+                        <span class="avatar">🐰</span>
+                        <div class="score-details">
+                            <span class="name">الأرنب</span>
+                            <span class="points" id="score-rabbit">0</span>
+                        </div>
                     </div>
-                    <button id="reset-game" class="btn">إعادة اللعب</button>
                 </div>
 
-                <div class="footer-note">
-                    <p>أنتِ شريكتي في كل مغامرة.. للأبد 🐾</p>
+                <div id="turn-indicator" class="turn-box">
+                    <p id="game-status" class="status-glow">بدأت اللعبة!</p>
                 </div>
             </div>
+
+            <div class="board" id="board">
+                <div class="cell" data-index="0"></div>
+                <div class="cell" data-index="1"></div>
+                <div class="cell" data-index="2"></div>
+                <div class="cell" data-index="3"></div>
+                <div class="cell" data-index="4"></div>
+                <div class="cell" data-index="5"></div>
+                <div class="cell" data-index="6"></div>
+                <div class="cell" data-index="7"></div>
+                <div class="cell" data-index="8"></div>
+            </div>
             
-            <audio id="bg-music" loop>
-                <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
-            </audio>
+            <div class="game-controls">
+                <button id="reset-game" class="btn primary-btn hidden-btn">إلعب جيم تاني 🔄</button>
+                <button id="leave-room" class="btn danger-btn">الخروج من الغرفة 🚪</button>
+            </div>
         </div>
+    </div>
+
+    <!-- Celebration Overlay -->
+    <div id="celebration" class="celebration hidden">
+        <h1 id="celebration-text"></h1>
     </div>
 
     <script src="script.js"></script>
