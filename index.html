@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Zyad 🦊 & Batool 🐰</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --fox: #f97316; --fox-glow: rgba(249,115,22,0.5);
+  --rabbit: #ec4899; --rabbit-glow: rgba(236,72,153,0.5);
+  --bg: #0f172a; --glass: rgba(30,41,59,0.8);
+  --border: rgba(255,255,255,0.1); --muted: #94a3b8;
+}
+* { margin:0; padding:0; box-sizing:border-box; font-family:'Cairo',sans-serif; }
+body {
+  background: radial-gradient(circle at 50% 50%, #1e293b 0%, var(--bg) 100%);
+  color:#f8fafc; min-height:100vh;
+  display:flex; justify-content:center; align-items:center;
+}
+.screen { display:none; flex-direction:column; align-items:center; width:100%; max-width:460px; padding:20px; }
+.screen.active { display:flex; animation:fadeUp 0.4s ease; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:none} }
+.card {
+  background:var(--glass); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  border:1px solid var(--border); border-radius:24px; padding:30px 22px;
+  width:100%; text-align:center; box-shadow:0 20px 50px rgba(0,0,0,0.5);
+}
+.logo { font-size:3rem; margin-bottom:8px; }
+h1 {
+  font-size:1.9rem; font-weight:900; margin-bottom:5px;
+  background:linear-gradient(to right,var(--fox),var(--rabbit));
+  -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+}
+.sub { color:var(--muted); margin-bottom:24px; }
+.btn {
+  width:100%; padding:14px; border:none; border-radius:14px;
+  font-size:1rem; font-weight:700; cursor:pointer; font-family:'Cairo',sans-serif;
+  transition:all 0.2s; display:flex; align-items:center; justify-content:center; gap:8px;
+}
+.btn-fox    { background:var(--fox);    color:white; box-shadow:0 4px 18px var(--fox-glow); margin-bottom:10px; }
+.btn-rabbit { background:var(--rabbit); color:white; box-shadow:0 4px 18px var(--rabbit-glow); }
+.btn-again  { background:var(--fox);    color:white; box-shadow:0 4px 18px var(--fox-glow); }
+.btn-danger { background:transparent; color:var(--muted); border:1px solid var(--muted); margin-top:10px; }
+.btn:hover  { transform:translateY(-2px); filter:brightness(1.1); }
+.btn.hidden { display:none!important; }
+.divider { display:flex; align-items:center; color:var(--muted); margin:12px 0; }
+.divider::before,.divider::after { content:''; flex:1; border-bottom:1px solid var(--border); }
+.divider span { padding:0 10px; }
+input {
+  width:100%; padding:13px; border-radius:12px;
+  border:1.5px solid var(--border); background:rgba(0,0,0,0.3);
+  color:white; font-size:1.2rem; font-family:'Cairo',sans-serif;
+  text-align:center; letter-spacing:3px; outline:none; margin-bottom:10px; transition:border 0.2s;
+}
+input:focus { border-color:var(--rabbit); }
+input::placeholder { color:rgba(255,255,255,0.3); letter-spacing:1px; }
+.err { color:#ef4444; font-size:0.85rem; min-height:18px; }
+
+/* waiting */
+.big-code {
+  font-size:3rem; font-weight:900; letter-spacing:6px; color:white; margin:16px 0;
+  background:rgba(0,0,0,0.4); padding:10px 20px; border-radius:14px; border:1px solid var(--border);
+}
+.loader {
+  width:40px; height:40px; border-radius:50%;
+  border:4px solid rgba(255,255,255,0.1); border-top-color:var(--fox);
+  animation:spin 1s linear infinite; margin:20px auto 10px;
+}
+@keyframes spin { to{transform:rotate(360deg)} }
+
+/* game */
+.room-tag { color:var(--muted); font-size:0.88rem; margin-bottom:12px; }
+.room-tag strong { color:white; }
+.scores {
+  display:flex; justify-content:space-between; align-items:center;
+  background:rgba(0,0,0,0.2); border:1px solid var(--border);
+  border-radius:16px; padding:12px 16px; margin-bottom:12px; width:100%;
+}
+.ps { display:flex; align-items:center; gap:8px; }
+.av { font-size:2rem; }
+.sc-name { font-size:0.82rem; color:var(--muted); }
+.sc-pts  { font-size:1.4rem; font-weight:900; }
+.draws-box { text-align:center; }
+.draws-num { font-size:1.3rem; font-weight:900; color:white; }
+.draws-lbl { font-size:0.7rem; color:var(--muted); }
+.status {
+  padding:11px; border-radius:12px; font-size:1rem; font-weight:700;
+  text-align:center; background:rgba(255,255,255,0.05);
+  border:1px solid var(--border); margin-bottom:16px; width:100%; transition:all 0.3s;
+}
+.board {
+  display:grid; grid-template-columns:repeat(3,1fr);
+  gap:10px; width:100%; max-width:320px;
+}
+.cell {
+  aspect-ratio:1; border-radius:16px; border:2px solid var(--border);
+  background:rgba(0,0,0,0.3); display:flex; align-items:center; justify-content:center;
+  cursor:pointer; transition:all 0.2s; -webkit-tap-highlight-color:transparent;
+}
+.cell:hover { background:rgba(255,255,255,0.06); }
+.cell.fox    { border-color:rgba(249,115,22,0.5); background:rgba(249,115,22,0.12); }
+.cell.rabbit { border-color:rgba(236,72,153,0.5); background:rgba(236,72,153,0.12); }
+.cell.win { animation:winPulse 0.8s infinite alternate; }
+@keyframes winPulse {
+  from{transform:scale(1);   box-shadow:0 0 10px rgba(255,255,255,0.4)}
+  to  {transform:scale(1.08);box-shadow:0 0 25px rgba(255,255,255,0.8)}
+}
+.cell-emoji {
+  font-size:3rem; pointer-events:none; user-select:none;
+  animation:popIn 0.3s cubic-bezier(0.175,0.885,0.32,1.275);
+}
+@keyframes popIn { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
+.controls { margin-top:16px; width:100%; }
+
+/* celebration */
+.celebration {
+  position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px);
+  z-index:999; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:12px;
+}
+.celebration.hidden { display:none; }
+.cel-emoji { font-size:5rem; animation:bigPop 0.5s cubic-bezier(0.34,1.56,0.64,1); }
+.cel-txt   { font-size:1.8rem; font-weight:900; color:white; text-align:center; }
+@keyframes bigPop { from{transform:scale(0)} to{transform:scale(1)} }
+</style>
+</head>
+<body>
+
+<!-- LOBBY — always shown first -->
+<div id="lobby" class="screen active">
+  <div class="card">
+    <div class="logo">🦊⚔️🐰</div>
+    <h1>Zyad & Batool</h1>
+    <p class="sub">لعبتكم الخاصة 💕</p>
+    <button class="btn btn-fox" id="btn-create">أنا Zyad — إنشاء غرفة 🦊</button>
+    <div class="divider"><span>أو</span></div>
+    <input id="code-input" type="text" placeholder="كود الغرفة" maxlength="6"
+      oninput="this.value=this.value.toUpperCase()">
+    <button class="btn btn-rabbit" id="btn-join">أنا Batool — دخول 🐰</button>
+    <p class="err" id="err"></p>
+  </div>
+</div>
+
+<!-- WAITING -->
+<div id="waiting" class="screen">
+  <div class="card">
+    <h2>غرفتك جاهزة 🏠</h2>
+    <div class="big-code" id="show-code">----</div>
+    <p style="color:var(--muted)">ابعت الكود ده لـ Batool 🐰</p>
+    <div class="loader"></div>
+    <p style="color:var(--muted)">بانتظار Batool...</p>
+  </div>
+</div>
+
+<!-- GAME -->
+<div id="game" class="screen">
+  <p class="room-tag">الغرفة: <strong id="room-tag"></strong></p>
+  <div class="scores" style="width:100%;max-width:460px;">
+    <div class="ps">
+      <span class="av">🦊</span>
+      <div><div class="sc-name">Zyad</div><div class="sc-pts" style="color:var(--fox)" id="sf">0</div></div>
+    </div>
+    <div class="draws-box">
+      <div class="draws-num" id="sd">0</div>
+      <div class="draws-lbl">تعادل</div>
+    </div>
+    <div class="ps">
+      <div style="text-align:left"><div class="sc-name">Batool</div><div class="sc-pts" style="color:var(--rabbit)" id="sr">0</div></div>
+      <span class="av">🐰</span>
+    </div>
+  </div>
+  <div class="status" id="status">...</div>
+  <div class="board">
+    <div class="cell" data-i="0"></div><div class="cell" data-i="1"></div><div class="cell" data-i="2"></div>
+    <div class="cell" data-i="3"></div><div class="cell" data-i="4"></div><div class="cell" data-i="5"></div>
+    <div class="cell" data-i="6"></div><div class="cell" data-i="7"></div><div class="cell" data-i="8"></div>
+  </div>
+  <div class="controls">
+    <button class="btn btn-again hidden" id="btn-again">جولة جديدة 🔄</button>
+    <button class="btn btn-danger" id="btn-leave">الخروج 🚪</button>
+  </div>
+</div>
+
+<!-- CELEBRATION -->
+<div class="celebration hidden" id="cel">
+  <div class="cel-emoji" id="cel-emoji"></div>
+  <div class="cel-txt"   id="cel-txt"></div>
+</div>
+
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script>
+firebase.initializeApp({
+  apiKey:"AIzaSyCo1HSjIr-xZqq-GBRRrHUoRpNBhq1fch0",
+  authDomain:"zootopia-game-e599a.firebaseapp.com",
+  databaseURL:"https://zootopia-game-e599a-default-rtdb.firebaseio.com",
+  projectId:"zootopia-game-e599a",
+  storageBucket:"zootopia-game-e599a.firebasestorage.app",
+  messagingSenderId:"209733577829",
+  appId:"1:209733577829:web:67438de34366b24938aa8c"
+});
+const db = firebase.database();
+
+// ── State ──────────────────────────────────────────────
+// myRole is ONLY set when user clicks a button — never auto-assigned
+let myRole=null, roomCode=null, gameRef=null, listening=false;
+let board=Array(9).fill(null), turn='fox', gstate='lobby';
+let scores={fox:0,rabbit:0,draws:0};
+const NAMES={fox:'Zyad 🦊', rabbit:'Batool 🐰'};
+
+const cells   = document.querySelectorAll('.cell');
+const $status = document.getElementById('status');
+const $cel    = document.getElementById('cel');
+
+function show(id) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+
+// ── CREATE (Zyad only) ─────────────────────────────────
+document.getElementById('btn-create').onclick = async () => {
+  myRole   = 'fox';   // Zyad = fox, always
+  roomCode = Math.floor(1000+Math.random()*9000).toString();
+  gameRef  = db.ref('rooms/'+roomCode);
+  await gameRef.set({
+    board:Array(9).fill(null), turn:'fox', state:'waiting',
+    scores:{fox:0,rabbit:0,draws:0}, winner:null, winCombo:null
+  });
+  gameRef.onDisconnect().remove();
+  document.getElementById('show-code').textContent = roomCode;
+  show('waiting');
+  listen();
+};
+
+// ── JOIN (Batool only) ─────────────────────────────────
+document.getElementById('btn-join').onclick = async () => {
+  const code = document.getElementById('code-input').value.trim();
+  const err  = document.getElementById('err');
+  err.textContent='';
+  if (!code) { err.textContent='اكتب الكود!'; return; }
+  const snap = await db.ref('rooms/'+code).once('value');
+  if (!snap.exists())                 { err.textContent='الغرفة مش موجودة!'; return; }
+  if (snap.val().state!=='waiting')   { err.textContent='الغرفة ممتلئة!'; return; }
+
+  myRole   = 'rabbit';  // Batool = rabbit, always
+  roomCode = code;
+  gameRef  = db.ref('rooms/'+roomCode);
+  await gameRef.update({state:'playing'});
+  document.getElementById('room-tag').textContent = roomCode;
+  show('game');
+  listen();
+};
+
+// ── LISTENER ──────────────────────────────────────────
+function listen() {
+  if (listening) return;
+  listening=true;
+  gameRef.on('value', snap => {
+    const d=snap.val();
+    if (!d) { alert('الغرفة اتقفلت.'); location.reload(); return; }
+    board  = d.board  || Array(9).fill(null);
+    turn   = d.turn   || 'fox';
+    gstate = d.state;
+    scores = d.scores || {fox:0,rabbit:0,draws:0};
+
+    if (gstate==='waiting') {
+      show('waiting');
+    } else if (gstate==='playing') {
+      document.getElementById('room-tag').textContent=roomCode;
+      show('game'); render(d);
+      $cel.classList.add('hidden');
+      document.getElementById('btn-again').classList.add('hidden');
+      updateStatus();
+    } else if (gstate==='finished') {
+      document.getElementById('room-tag').textContent=roomCode;
+      show('game'); render(d); finish(d);
+    }
+  });
+}
+
+// ── RENDER ─────────────────────────────────────────────
+function render(d) {
+  const wl=d.winCombo||[];
+  cells.forEach((cell,i)=>{
+    cell.className='cell';
+    cell.innerHTML='';
+    if (board[i]) {
+      cell.classList.add(board[i]);
+      const sp=document.createElement('span');
+      sp.className='cell-emoji';
+      sp.textContent=board[i]==='fox'?'🦊':'🐰';
+      cell.appendChild(sp);
+    }
+    if (wl.includes(i)) cell.classList.add('win');
+    const ok=gstate==='playing'&&!board[i]&&turn===myRole;
+    cell.style.cursor=ok?'pointer':'default';
+    cell.style.opacity=(!board[i]&&gstate==='playing'&&turn!==myRole)?'0.4':'1';
+  });
+  document.getElementById('sf').textContent=scores.fox;
+  document.getElementById('sr').textContent=scores.rabbit;
+  document.getElementById('sd').textContent=scores.draws;
+}
+
+function updateStatus() {
+  if (turn===myRole) {
+    $status.textContent='✨ دورك أنت!';
+    $status.style.color=myRole==='fox'?'#f97316':'#ec4899';
+    $status.style.borderColor=myRole==='fox'?'rgba(249,115,22,0.4)':'rgba(236,72,153,0.4)';
+  } else {
+    $status.textContent=`⏳ دور ${myRole==='fox'?NAMES.rabbit:NAMES.fox}`;
+    $status.style.color='#94a3b8';
+    $status.style.borderColor='rgba(255,255,255,0.1)';
+  }
+}
+
+function finish(d) {
+  document.getElementById('btn-again').classList.remove('hidden');
+  if (d.winner==='draw') {
+    $status.textContent='🤝 تعادل!'; $status.style.color='#94a3b8';
+  } else {
+    $status.textContent=`${NAMES[d.winner]} فاز! 🎉`;
+    $status.style.color=d.winner==='fox'?'#f97316':'#ec4899';
+    if (d.winner===myRole) {
+      document.getElementById('cel-emoji').textContent=myRole==='fox'?'🦊🏆':'🐰🏆';
+      document.getElementById('cel-txt').textContent=`برافو ${NAMES[myRole]}!`;
+      $cel.classList.remove('hidden');
+      setTimeout(()=>$cel.classList.add('hidden'),2500);
+    }
+  }
+}
+
+// ── WIN CHECK ──────────────────────────────────────────
+function checkWin(b) {
+  const L=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+  for (const[a,bb,c]of L) if(b[a]&&b[a]===b[bb]&&b[a]===b[c]) return{winner:b[a],combo:[a,bb,c]};
+  if (!b.includes(null)) return{winner:'draw',combo:null};
+  return{winner:null,combo:null};
+}
+
+// ── CELL CLICK ─────────────────────────────────────────
+cells.forEach(cell=>{
+  cell.addEventListener('click',()=>{
+    if (gstate!=='playing'||turn!==myRole) return;
+    const i=parseInt(cell.getAttribute('data-i'));
+    if (board[i]) return;
+    const nb=[...board]; nb[i]=myRole;
+    const{winner,combo}=checkWin(nb);
+    const ns={...scores};
+    if (winner==='draw') ns.draws++;
+    else if (winner) ns[winner]++;
+    gameRef.update({
+      board:nb,
+      turn:winner?turn:(myRole==='fox'?'rabbit':'fox'),
+      state:winner?'finished':'playing',
+      winner:winner||null, winCombo:combo||null, scores:ns
+    });
+  });
+});
+
+// ── AGAIN / LEAVE ──────────────────────────────────────
+document.getElementById('btn-again').onclick=()=>{
+  if (gstate!=='finished') return;
+  gameRef.update({board:Array(9).fill(null),turn:'fox',state:'playing',winner:null,winCombo:null});
+};
+document.getElementById('btn-leave').onclick=()=>{
+  if(confirm('متأكد؟')){if(gameRef)gameRef.remove();location.reload();}
+};
+</script>
+</body>
+</html>
