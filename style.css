@@ -1,0 +1,278 @@
+:root {
+    --forest-green: #2E7D32;
+    --police-blue: #1976D2;
+    --nick-orange: #FF9800;
+    --dark-bg: #121212;
+    --glass-bg: rgba(255, 255, 255, 0.1);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Cairo', sans-serif;
+}
+
+body {
+    background: var(--dark-bg);
+    color: #fff;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#app {
+    width: 100%;
+    max-width: 450px;
+    height: 100%;
+    position: relative;
+}
+
+.screen {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    transition: opacity 0.5s ease;
+}
+
+.screen.active {
+    display: flex;
+    opacity: 1;
+}
+
+/* Landing Styles */
+.case-badge {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.logo {
+    width: 180px;
+    margin-bottom: 20px;
+}
+
+h1 {
+    font-size: 2rem;
+    color: var(--police-blue);
+    text-shadow: 0 0 10px rgba(25, 118, 210, 0.5);
+}
+
+.subtitle {
+    font-size: 1rem;
+    color: #aaa;
+    margin-top: 10px;
+}
+
+.scanner-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.fingerprint {
+    width: 120px;
+    height: 120px;
+    color: var(--police-blue);
+    position: relative;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.fingerprint:active {
+    transform: scale(0.95);
+}
+
+.scan-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    background: var(--nick-orange);
+    box-shadow: 0 0 15px var(--nick-orange);
+    animation: scan 2s infinite linear;
+}
+
+@keyframes scan {
+    0% { top: 0; }
+    50% { top: 100%; }
+    100% { top: 0; }
+}
+
+#instruction {
+    margin-top: 20px;
+    color: #666;
+}
+
+#progress-container {
+    width: 150px;
+    height: 6px;
+    background: #333;
+    border-radius: 3px;
+    margin-top: 15px;
+    overflow: hidden;
+}
+
+#progress-bar {
+    width: 0%;
+    height: 100%;
+    background: var(--police-blue);
+    transition: width 0.1s;
+}
+
+/* Reveal Styles */
+#reveal {
+    background: linear-gradient(135deg, #1a2a1a 0%, #0d1a2a 100%);
+    overflow-y: auto;
+}
+
+.content {
+    width: 100%;
+    text-align: center;
+}
+
+.title-section h2 {
+    color: var(--nick-orange);
+    margin-bottom: 30px;
+    font-size: 1.8rem;
+}
+
+.hero-image img {
+    width: 100%;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    border: 3px solid var(--glass-bg);
+}
+
+.message-card {
+    margin-top: 30px;
+    padding: 25px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(10px);
+    border-radius: 15px;
+    border: 1px solid rgba(255,255,255,0.1);
+    min-height: 150px;
+}
+
+#typewriter {
+    font-size: 1.2rem;
+    line-height: 1.8;
+    color: #eee;
+}
+
+/* Game Styles */
+.game-container {
+    margin-top: 40px;
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.3);
+    border-radius: 20px;
+    border: 1px solid var(--glass-bg);
+}
+
+.game-header h3 {
+    color: var(--nick-orange);
+    margin-bottom: 15px;
+}
+
+.scores {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+}
+
+.player-score {
+    font-weight: bold;
+    padding: 5px 15px;
+    border-radius: 10px;
+    background: var(--glass-bg);
+}
+
+.board {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin: 0 auto 20px;
+    max-width: 300px;
+}
+
+.cell {
+    width: 90px;
+    height: 90px;
+    background: var(--glass-bg);
+    border: 2px solid rgba(255,255,255,0.05);
+    border-radius: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 2.5rem;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.cell:hover {
+    background: rgba(255,255,255,0.15);
+}
+
+.cell.nick::before {
+    content: '🦊';
+}
+
+.cell.judy::before {
+    content: '🐰';
+}
+
+.btn {
+    padding: 10px 25px;
+    background: var(--police-blue);
+    color: white;
+    border: none;
+    border-radius: 25px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: opacity 0.3s;
+}
+
+.btn:hover {
+    opacity: 0.8;
+}
+
+#game-status {
+    margin-bottom: 15px;
+    font-weight: bold;
+    color: #ffd700;
+}
+
+.footer-note {
+    margin-top: 40px;
+    color: #888;
+    font-style: italic;
+}
+
+.heart-particle {
+    position: fixed;
+    bottom: -10%;
+    z-index: 1000;
+    pointer-events: none;
+    animation: floatUp linear forwards;
+    opacity: 0.8;
+}
+
+@keyframes floatUp {
+    0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+    }
+    100% {
+        transform: translateY(-110vh) rotate(360deg);
+        opacity: 0;
+    }
+}
